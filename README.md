@@ -1,11 +1,6 @@
-# VoiceOver for World of Warcraft
+# VoiceOver for World of Warcraft - Continued
 
-## v2: https://allvoice.ai
-Contribute voices on [allvoice.ai](https://allvoice.ai) so I can give each NPC a unique AI voicemodel to power their dialog. The top rated voice for each NPC will be used. 
-
-
-### [voiceover discord](https://discord.gg/VdhUmA8ZCt)
-### [allvoice code](https://github.com/allvoice/allvoice-website)
+Continuation of [mrthinger/wow-voiceover](https://github.com/mrthinger/wow-voiceover).
 
 ## Overview
 - tts cli to create audio files for quests and gossip text.
