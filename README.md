@@ -2,6 +2,8 @@
 
 Continuation of [mrthinger/wow-voiceover](https://github.com/mrthinger/wow-voiceover).
 
+Primary development happens on [GitLab](https://gitlab.com/RomainDel/wow-voiceover-continued), mirrored here to GitHub.
+
 ## Overview
 - tts cli to create audio files for quests and gossip text.
 - in game addon for playing generated voiceovers
@@ -81,7 +83,7 @@ ln -s ./VoiceOver "$WOW_DIR/_classic_era_/Interface/AddOns"
 ln -s ./VoiceOver_Vanilla "$WOW_DIR/_classic_era_/Interface/AddOns"
 ```
 ## Contributing
-If you want to contribute to this project, please feel free to open an issue or submit a pull request.
+Issues and merge requests are handled on [GitLab](https://gitlab.com/RomainDel/wow-voiceover-continued).
 
 # CLI Docs
 
