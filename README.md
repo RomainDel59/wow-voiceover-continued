@@ -11,7 +11,7 @@ Primary development happens on [GitLab](https://gitlab.com/RomainDel/wow-voiceov
 - cli uses data fetched from a local MySQL database and ElevenLabs tts for speech
 
 
-## Below is for developers only. Go to [releases](https://github.com/mrthinger/wow-voiceover/releases) if youre looking to install the addon.
+## Below is for developers only. Go to [releases](https://gitlab.com/RomainDel/wow-voiceover-continued/-/releases) if youre looking to install the addon.
 
 ## Requirements
 - python 3.10+
