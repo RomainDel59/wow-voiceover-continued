@@ -71,7 +71,7 @@ def import_sql_files_to_database():
     cursor.execute(f"USE {MYSQL_DATABASE};")
 
     sql_files = []
-    for dirpath, _, filenames in os.walk("assets/sql/db_dump"):
+    for dirpath, _, filenames in os.walk("assets/sql/mysql-dump"):
         for filename in filenames:
             if filename.endswith(".sql"):
                 sql_files.append(os.path.join(dirpath, filename))
