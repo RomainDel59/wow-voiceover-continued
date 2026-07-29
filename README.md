@@ -85,9 +85,9 @@ ln -s ./VoiceOver_Vanilla "$WOW_DIR/_classic_era_/Interface/AddOns"
 ## Contributing
 Issues and merge requests are handled on [GitLab](https://gitlab.com/RomainDel/wow-voiceover-continued).
 
-# CLI Docs
+## CLI Docs
 
-## Dataframe Schema
+### Dataframe Schema
 
 The dataframe schema before calling the `preprocess_dataframe` function consists of the following columns:
 
@@ -104,7 +104,7 @@ The dataframe schema before calling the `preprocess_dataframe` function consists
 
 `DisplayRaceID = -1` is used for interactions with inanimate NPCs: gameobjects, items etc. It's mapped to a voice called "narrator" in `RACE_DICT`.
 
-## New Fields Added by `preprocess_dataframe`
+### New Fields Added by `preprocess_dataframe`
 
 The `preprocess_dataframe` function adds the following new fields to the dataframe:
 
