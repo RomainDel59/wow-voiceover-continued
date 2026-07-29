@@ -2,7 +2,7 @@
 
 Continuation of [mrthinger/wow-voiceover](https://github.com/mrthinger/wow-voiceover).
 
-Primary development happens on [GitLab](https://gitlab.com/RomainDel/wow-voiceover-continued), mirrored here to GitHub.
+Primary development happens on [GitLab](https://gitlab.com/RomainDel/wow-voiceover-continued), mirrored to GitHub.
 
 ## Overview
 - tts cli to create audio files for quests and gossip text.
