@@ -1,0 +1,68 @@
+stages:
+  - build
+  - upload
+  - release
+
+variables:
+  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/wow-voiceover/${CI_COMMIT_TAG}"
+
+build:
+  stage: build
+  image: alpine:3.20
+  rules:
+    - if: $CI_COMMIT_TAG
+  before_script:
+    - apk add --no-cache zip
+  script:
+    - VERSION="${CI_COMMIT_TAG#v}"
+    - mkdir -p release
+
+    # Un zip par variante de client : chaque AI_VoiceOver_<variante>.toc devient AI_VoiceOver.toc dans son propre zip.
+    - |
+      for toc in AI_VoiceOver/AI_VoiceOver_*.toc; do
+        variant=$(basename "$toc" .toc)
+        variant=${variant#AI_VoiceOver_}
+        build_dir="build/$variant/AI_VoiceOver"
+        mkdir -p "$build_dir"
+        cp -r AI_VoiceOver/* "$build_dir/"
+        rm -f "$build_dir"/AI_VoiceOver_*.toc
+        sed "s/## Version: 0.0.0/## Version: $VERSION/" "$toc" > "$build_dir/AI_VoiceOver.toc"
+        (cd "build/$variant" && zip -rq "$OLDPWD/release/AI_VoiceOver-$variant-$CI_COMMIT_TAG.zip" AI_VoiceOver)
+      done
+
+    # Donnees derivees de la base VMaNGOS (mp3 non inclus : voir generated/build_sound_length_table.* dans le zip).
+    - |
+      mkdir -p build/data/AI_VoiceOverData_Vanilla
+      cp -r AI_VoiceOverData_Vanilla/* build/data/AI_VoiceOverData_Vanilla/
+      sed "s/## Version: 0.1/## Version: $VERSION/" AI_VoiceOverData_Vanilla/AI_VoiceOverData_Vanilla.toc > build/data/AI_VoiceOverData_Vanilla/AI_VoiceOverData_Vanilla.toc
+      (cd build/data && zip -rq "$OLDPWD/release/AI_VoiceOverData_Vanilla-$CI_COMMIT_TAG.zip" AI_VoiceOverData_Vanilla)
+  artifacts:
+    paths:
+      - release/*.zip
+    expire_in: 1 hour
+
+upload:
+  stage: upload
+  image: curlimages/curl:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - |
+      for f in release/*.zip; do
+        name=$(basename "$f")
+        curl --fail --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "$f" "${PACKAGE_REGISTRY_URL}/${name}"
+      done
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - |
+      args=""
+      for f in release/*.zip; do
+        name=$(basename "$f")
+        args="$args --assets-link {\"name\":\"$name\",\"url\":\"${PACKAGE_REGISTRY_URL}/${name}\"}"
+      done
+      release-cli create --name "Release $CI_COMMIT_TAG" --tag-name "$CI_COMMIT_TAG" $args
