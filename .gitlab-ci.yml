@@ -30,6 +30,7 @@ build:
     - |
       mkdir -p build/data/AI_VoiceOverData_Vanilla
       cp -r AI_VoiceOverData_Vanilla/* build/data/AI_VoiceOverData_Vanilla/
+      mkdir -p build/data/AI_VoiceOverData_Vanilla/generated/sounds/quests build/data/AI_VoiceOverData_Vanilla/generated/sounds/gossip
       sed "s/## Version: 0.1/## Version: $VERSION/" AI_VoiceOverData_Vanilla/AI_VoiceOverData_Vanilla.toc > build/data/AI_VoiceOverData_Vanilla/AI_VoiceOverData_Vanilla.toc
       (cd build/data && zip -rq "$OLDPWD/release/AI_VoiceOverData_Vanilla-$CI_COMMIT_TAG.zip" AI_VoiceOverData_Vanilla)
   artifacts:
