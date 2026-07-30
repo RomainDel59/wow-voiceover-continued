@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Construit sound_length_table.lua a partir des mp3 presents dans sounds/quests et sounds/gossip.
-# Utilise afinfo (macOS) ou ffprobe si disponible ; a defaut, estimation CBR sans dependance externe.
+# Builds sound_length_table.lua from the mp3 files present in sounds/quests and sounds/gossip.
+# Uses afinfo (macOS) or ffprobe if available; otherwise falls back to a dependency-free CBR estimate.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -17,8 +17,8 @@ file_size() {
     stat -f%z "$1" 2>/dev/null || stat -c%s "$1"
 }
 
-# Repli sans dependance : lit le premier en-tete de frame MP3 (apres un eventuel tag ID3v2)
-# pour deduire le debit, puis estime la duree via taille du fichier / debit (mp3 CBR).
+# Dependency-free fallback: reads the first MP3 frame header (after any ID3v2 tag)
+# to derive the bitrate, then estimates the duration from file size / bitrate (CBR mp3).
 get_duration_fallback() {
     local file="$1"
     local header offset=0
@@ -79,8 +79,8 @@ get_duration() {
 }
 
 if [ ! -d "$SOUNDS_DIR" ]; then
-    echo "Dossier introuvable : $SOUNDS_DIR" >&2
-    echo "Placez vos mp3 dans sounds/quests et sounds/gossip avant de lancer ce script." >&2
+    echo "Folder not found: $SOUNDS_DIR" >&2
+    echo "Place your mp3 files in sounds/quests and sounds/gossip before running this script." >&2
     exit 1
 fi
 
@@ -96,7 +96,7 @@ error_count=0
             printf '    ["%s"] = %s,\n' "$name" "$duration"
             mp3_count=$((mp3_count + 1))
         else
-            echo "Attention : $file - duree illisible, ignore" >&2
+            echo "Warning: $file - unreadable duration, skipped" >&2
             error_count=$((error_count + 1))
         fi
     done < <(find "$SOUNDS_DIR" -type f -name "*.mp3" -print0)
@@ -104,8 +104,8 @@ error_count=0
 } > "$OUTPUT_FILE"
 
 if [ "$mp3_count" -eq 0 ]; then
-    echo "Aucun fichier mp3 trouve dans $SOUNDS_DIR" >&2
+    echo "No mp3 file found in $SOUNDS_DIR" >&2
     exit 1
 fi
 
-echo "sound_length_table.lua genere : $OUTPUT_FILE ($mp3_count fichier(s), $error_count erreur(s))"
+echo "sound_length_table.lua generated: $OUTPUT_FILE ($mp3_count file(s), $error_count error(s))"

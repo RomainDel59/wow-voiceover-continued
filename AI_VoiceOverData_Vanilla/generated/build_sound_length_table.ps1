@@ -1,5 +1,5 @@
-# Construit sound_length_table.lua a partir des mp3 presents dans sounds/quests et sounds/gossip.
-# Aucune dependance externe : lit directement les en-tetes MPEG des fichiers mp3.
+# Builds sound_length_table.lua from the mp3 files present in sounds/quests and sounds/gossip.
+# No external dependency: reads the MPEG headers of the mp3 files directly.
 
 $ErrorActionPreference = "Stop"
 
@@ -18,13 +18,13 @@ function Get-Mp3Duration {
     $bytes = [System.IO.File]::ReadAllBytes($Path)
     $offset = 0
 
-    # Ignore le tag ID3v2 s'il est present (taille encodee en syncsafe sur 4 octets)
+    # Skip the ID3v2 tag if present (size encoded as syncsafe over 4 bytes)
     if ($bytes.Length -ge 10 -and $bytes[0] -eq 0x49 -and $bytes[1] -eq 0x44 -and $bytes[2] -eq 0x33) {
         $size = (($bytes[6] -band 0x7F) -shl 21) -bor (($bytes[7] -band 0x7F) -shl 14) -bor (($bytes[8] -band 0x7F) -shl 7) -bor ($bytes[9] -band 0x7F)
         $offset = 10 + $size
     }
 
-    # Recherche le premier mot de synchro de frame MPEG (0xFF suivi de 3 bits a 1)
+    # Look for the first MPEG frame sync word (0xFF followed by 3 bits set to 1)
     while ($offset -lt $bytes.Length - 4) {
         if ($bytes[$offset] -eq 0xFF -and ($bytes[$offset + 1] -band 0xE0) -eq 0xE0) {
             break
@@ -32,7 +32,7 @@ function Get-Mp3Duration {
         $offset++
     }
     if ($offset -ge $bytes.Length - 4) {
-        throw "Aucune frame MP3 valide trouvee"
+        throw "No valid MP3 frame found"
     }
 
     $b1 = $bytes[$offset + 1]
@@ -47,14 +47,14 @@ function Get-Mp3Duration {
     $channelMode = ($b3 -shr 6) -band 0x03
 
     if ($layerBits -ne 1) {
-        throw "Frame non-Layer III rencontree (fichier probablement corrompu)"
+        throw "Non-Layer III frame encountered (file is likely corrupted)"
     }
 
     switch ($versionBits) {
         3 { $mpegVersion = "1" }
         2 { $mpegVersion = "2" }
         0 { $mpegVersion = "2.5" }
-        default { throw "Version MPEG invalide" }
+        default { throw "Invalid MPEG version" }
     }
 
     if ($mpegVersion -eq "1") {
@@ -68,10 +68,10 @@ function Get-Mp3Duration {
     }
 
     if ($bitrate -eq 0 -or $sampleRate -eq 0) {
-        throw "En-tete de frame invalide (bitrate ou sample rate nul)"
+        throw "Invalid frame header (bitrate or sample rate is zero)"
     }
 
-    # Cherche un en-tete Xing/Info juste apres l'en-tete de frame (mp3 VBR)
+    # Look for a Xing/Info header right after the frame header (VBR mp3)
     $xingOffset = $offset + 4
     if ($mpegVersion -eq "1") {
         $xingOffset += if ($channelMode -eq 3) { 17 } else { 32 }
@@ -91,19 +91,19 @@ function Get-Mp3Duration {
         }
     }
 
-    # Pas d'en-tete VBR : mp3 CBR, duree deduite de la taille du fichier et du debit
+    # No VBR header: CBR mp3, duration derived from file size and bitrate
     $audioBytes = $bytes.Length - $offset
     return [math]::Round($audioBytes * 8 / $bitrate, 3)
 }
 
 if (-not (Test-Path $SoundsDir)) {
-    Write-Error "Dossier introuvable : $SoundsDir`nPlacez vos mp3 dans sounds\quests et sounds\gossip avant de lancer ce script."
+    Write-Error "Folder not found: $SoundsDir`nPlace your mp3 files in sounds\quests and sounds\gossip before running this script."
     exit 1
 }
 
 $mp3Files = Get-ChildItem -Path $SoundsDir -Recurse -Filter "*.mp3"
 if ($mp3Files.Count -eq 0) {
-    Write-Error "Aucun fichier mp3 trouve dans $SoundsDir"
+    Write-Error "No mp3 file found in $SoundsDir"
     exit 1
 }
 
@@ -118,7 +118,7 @@ foreach ($file in $mp3Files) {
         $key = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
         $lines.Add("    [`"$key`"] = $duration,")
     } catch {
-        Write-Warning "$($file.Name) : $($_.Exception.Message) - ignore"
+        Write-Warning "$($file.Name): $($_.Exception.Message) - skipped"
         $errorCount++
     }
 }
@@ -127,4 +127,4 @@ $lines.Add("}")
 
 Set-Content -Path $OutputFile -Value $lines -Encoding UTF8
 
-Write-Host "sound_length_table.lua genere : $OutputFile ($($mp3Files.Count - $errorCount) fichier(s), $errorCount erreur(s))"
+Write-Host "sound_length_table.lua generated: $OutputFile ($($mp3Files.Count - $errorCount) file(s), $errorCount error(s))"
