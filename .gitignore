@@ -5,7 +5,8 @@ sql-data
 .env
 sql/db_dump
 assets/sql/mysql-dump
-generated
+AI_VoiceOverData_Vanilla/generated/sounds/
+AI_VoiceOverData_Vanilla/generated/sound_length_table.lua
 .vscode/settings.json
 .DS_Store
 AI_VoiceOver/AI_VoiceOver.toc
