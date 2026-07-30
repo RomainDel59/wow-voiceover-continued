@@ -62,4 +62,10 @@ release:
         name=$(basename "$f")
         args="$args --assets-link {\"name\":\"$name\",\"url\":\"${PACKAGE_REGISTRY_URL}/${name}\"}"
       done
-      release-cli create --name "Release $CI_COMMIT_TAG" --tag-name "$CI_COMMIT_TAG" $args
+
+      sed -e "s|__VERSION__|$CI_COMMIT_TAG|g" \
+          -e "s|__ADDON_URL__|${PACKAGE_REGISTRY_URL}/AI_VoiceOver-$CI_COMMIT_TAG.zip|g" \
+          -e "s|__DATA_URL__|${PACKAGE_REGISTRY_URL}/AI_VoiceOverData_Vanilla-$CI_COMMIT_TAG.zip|g" \
+          .gitlab/release-template.md > release_description.md
+
+      release-cli create --name "Release $CI_COMMIT_TAG" --tag-name "$CI_COMMIT_TAG" --description "$(cat release_description.md)" $args
