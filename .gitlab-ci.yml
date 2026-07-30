@@ -17,18 +17,14 @@ build:
     - VERSION="${CI_COMMIT_TAG#v}"
     - mkdir -p release
 
-    # Un zip par variante de client : chaque AI_VoiceOver_<variante>.toc devient AI_VoiceOver.toc dans son propre zip.
+    # AI_VoiceOver, cible Vanilla (Classic Era) uniquement pour l'instant.
     - |
-      for toc in AI_VoiceOver/AI_VoiceOver_*.toc; do
-        variant=$(basename "$toc" .toc)
-        variant=${variant#AI_VoiceOver_}
-        build_dir="build/$variant/AI_VoiceOver"
-        mkdir -p "$build_dir"
-        cp -r AI_VoiceOver/* "$build_dir/"
-        rm -f "$build_dir"/AI_VoiceOver_*.toc
-        sed "s/## Version: 0.0.0/## Version: $VERSION/" "$toc" > "$build_dir/AI_VoiceOver.toc"
-        (cd "build/$variant" && zip -rq "$OLDPWD/release/AI_VoiceOver-$variant-$CI_COMMIT_TAG.zip" AI_VoiceOver)
-      done
+      build_dir="build/vanilla/AI_VoiceOver"
+      mkdir -p "$build_dir"
+      cp -r AI_VoiceOver/* "$build_dir/"
+      rm -f "$build_dir"/AI_VoiceOver_*.toc
+      sed "s/## Version: 0.0.0/## Version: $VERSION/" AI_VoiceOver/AI_VoiceOver_Vanilla.toc > "$build_dir/AI_VoiceOver.toc"
+      (cd build/vanilla && zip -rq "$OLDPWD/release/AI_VoiceOver-$CI_COMMIT_TAG.zip" AI_VoiceOver)
 
     # Donnees derivees de la base VMaNGOS (mp3 non inclus : voir generated/build_sound_length_table.* dans le zip).
     - |
