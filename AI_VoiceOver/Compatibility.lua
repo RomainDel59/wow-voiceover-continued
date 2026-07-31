@@ -93,6 +93,19 @@ if not hooksecurefunc then
     end
 end
 
+-- Blizzard removed these AddOn API globals in favor of the C_AddOns namespace on some clients
+if C_AddOns then
+    GetAddOnEnableState = GetAddOnEnableState or C_AddOns.GetAddOnEnableState
+    GetAddOnInfo = GetAddOnInfo or C_AddOns.GetAddOnInfo
+    GetAddOnMetadata = GetAddOnMetadata or C_AddOns.GetAddOnMetadata
+    GetNumAddOns = GetNumAddOns or C_AddOns.GetNumAddOns
+    IsAddOnLoaded = IsAddOnLoaded or C_AddOns.IsAddOnLoaded
+    IsAddOnLoadOnDemand = IsAddOnLoadOnDemand or C_AddOns.IsAddOnLoadOnDemand
+    EnableAddOn = EnableAddOn or C_AddOns.EnableAddOn
+    DisableAddOn = DisableAddOn or C_AddOns.DisableAddOn
+    LoadAddOn = LoadAddOn or C_AddOns.LoadAddOn
+end
+
 if not GetAddOnEnableState then
     ---@overload fun(addon)
     function GetAddOnEnableState(character, addon)
